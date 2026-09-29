@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 Max Artesanatos - Caixa 💰</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #8c6239;
+            --card-bg: #d2b48c;
+            --panel-bg: #fff8dc;
+            --primary: #27ae60;
+            --danger: #c0392b;
+            --info: #2980b9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 2px solid #5c3a21;
+        }
+
+        .abas-nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn-aba {
+            background: #5c3a21;
+            color: white;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-aba.ativo {
+            background: #d35400;
+            outline: 2px solid #fff;
+        }
+
+        .tela { display: none; }
+        .tela.ativa { display: block; }
+
+        h2.titulo {
+            text-align: center;
+            color: #fff;
+            background: #5c3a21;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .section-box {
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #b59b75;
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #5c3a21;
+            font-size: 15px;
+            border-bottom: 1px dashed #b59b75;
+            padding-bottom: 5px;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .grid-busca { display: grid; grid-template-columns: 3fr 1fr; gap: 10px; align-items: flex-end; }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 3px;
+            color: #444;
+        }
+
+        input, select {
+            padding: 8px;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        input:read-only { background: #e9ecef; }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            color: white;
+        }
+        .btn:hover { opacity: 0.85; }
+
+        .btn-buscar { background: var(--info); }
+        .btn-atacado { background: #d35400; width: 100%; }
+        .btn-varejo { background: var(--info); width: 100%; }
+        .btn-entrega { background: #8e44ad; width: 100%; }
+        .btn-adicionar { background: var(--primary); width: 100%; margin-top: 10px; }
+        .btn-salvar { background: var(--primary); flex: 1; }
+        .btn-limpar { background: #f39c12; flex: 1; }
+        .btn-excluir { background: var(--danger); flex: 1; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th { background: #5c3a21; color: white; }
+
+        .lixeira { color: var(--danger); cursor: pointer; font-size: 16px; }
+        .lixeira:hover { color: #ff0000; }
+
+        .total-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 12px;
+            gap: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #5c3a21;
+        }
+        .total-container span {
+            background: #fff;
+            padding: 8px 15px;
+            border: 2px solid #5c3a21;
+            border-radius: 4px;
+            color: #c0392b;
+            min-width: 150px;
+            text-align: right;
+        }
+
+        .acoes-finais { display: flex; gap: 10px; margin-top: 15px; }
+        .chart-container { position: relative; height: 280px; width: 100%; background: #fff; padding: 10px; border-radius: 4px; }
+       
+        #statusMsg { text-align: center; margin-top: 10px; font-weight: bold; padding: 8px; border-radius: 4px; }
+        .sucesso { background: #d4edda; color: #155724; }
+        .erro { background: #f8d7da; color: #721c24; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="abas-nav">
+        <button class="btn-aba ativo" onclick="mudarAba('caixa')">Caixa 🖨️</button>
+        <button class="btn-aba" onclick="mudarAba('vendas')">Vendas 📊</button>
+    </div>
+
+    <!-- TELA CAIXA --> 
+    <div id="telaCaixa" class="tela ativa">
+        <h2 class="titulo">💰 Max Artesanatos - Caixa 💰</h2>
+
+        <div class="section-box">
+            <div class="section-title">Consultar Produtos 🔍</div>
+            <div class="grid-busca">
+                <div class="input-group">
+                    <label>Cód. / Produto:</label>
+                    <select id="buscaProduto" onchange="selecionarProduto()">
+                        <option value="">⏳ Carregando produtos...</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-buscar" onclick="carregarListaProdutos()">Buscar 🔍</button>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">Caixa / Registrar Vendas 💰</div>
+            <div class="grid-2"> 
+                <div class="input-group"><label>Data:</label><input type="text" id="dataAtual" readonly></div>
+                <div class="input-group"><label>Hora:</label><input type="text" id="horaAtual" readonly></div>
+            </div>
+
+            <div class="grid-3" style="margin-bottom: 12px;">
+                <button type="button" class="btn btn-atacado" onclick="setTipoPreco('Atacado')">Atacado 🏭</button>
+                <button type="button" class="btn btn-varejo" onclick="setTipoPreco('Varejo')">Varejo 🏪</button>
+                <button type="button" class="btn btn-entrega" onclick="setTipoPreco('Entrega')">Entrega 🚚</button>
+            </div>
+
+            <div class="grid-3">
+                <div class="input-group"><label>Tipo Selecionado:</label><input type="text" id="tipoSelecionado" readonly value="Varejo"></div>
+                <div class="input-group"><label>Produto Selecionado:</label><input type="text" id="produtoNome" readonly></div>
+                <div class="input-group"><label>Quant. Estoque:</label><input type="text" id="estoqueAtual" readonly></div>
+            </div>
+
+            <div class="grid-3">
+                <div class="input-group"><label>Valor Selecionado (R$):</label><input type="number" id="valorBase" readonly step="0.01"></div>
+                <div class="input-group"><label>Desconto (%):</label><input type="number" id="descontoPerc" value="0" min="0" max="100" oninput="calcularValorFinal()"></div>
+                <div class="input-group"><label>Valor Final (Editável):</label><input type="number" id="valorFinal" step="0.01" oninput="calcularTotalItem()"></div>
+            </div>
+
+            <div class="grid-2">
+                <div class="input-group"><label>Quantidade:</label><input type="number" id="quantidadeItem" value="1" min="1" oninput="calcularTotalItem()"></div>
+                <div class="input-group"><label>Total Item (R$):</label><input type="number" id="totalItem" readonly step="0.01"></div>
+            </div>
+
+            <button type="button" class="btn btn-adicionar" onclick="adicionarAoCarrinho()">Adicionar Produto 🛒</button>
+        </div> 
+
+        <div class="section-box">
+            <table>
+                <thead>
+                    <tr><th>Produto</th><th>Tipo</th><th>Valor</th><th>Quant.</th><th>Total Item</th><th>Retirar</th></tr>
+                </thead>
+                <tbody id="tabelaCarrinho">
+                    <tr><td colspan="6" style="text-align:center; color:#777;">Nenhum produto adicionado 🤔</td></tr>
+                </tbody>
+            </table>
+
+            <div class="total-container">
+                🖨️ Total da Compra R$: <span id="totalCompraExibir">R$ 0,00</span>
+            </div>
+
+            <div class="acoes-finais">
+                <button type="button" class="btn btn-salvar" onclick="salvarVenda()">Salvar 💾</button>
+                <button type="button" class="btn btn-limpar" onclick="limparTela()">Limpar 🧹</button>
+                <button type="button" class="btn btn-excluir" onclick="zerarCarrinho()">Excluir 🗑️</button>
+            </div>
+            <div id="statusMsg" class="hidden"></div>
+        </div>
+    </div>
+
+    <!-- TELA VENDAS -->
+    <div id="telaVendas" class="tela">
+        <h2 class="titulo">📊 CONSULTA DE VENDAS - GRÁFICOS E RESUMO 📊</h2>
+
+        <div class="section-box">
+            <div class="section-title">Consultar Vendas por Período 📆</div>
+            <div class="grid-2"> 
+                <div class="input-group"><label>📆 Período Início:</label><input type="date" id="dataInicio" onchange="consultarVendas()"></div>
+                <div class="input-group"><label>📆 Período Final:</label><input type="date" id="dataFim" onchange="consultarVendas()"></div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">Gráfico de Desempenho 📊</div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px;">
+                <button type="button" class="btn" style="background: #27ae60;" onclick="filtrarGrafico('Todos')">Todos ✨</button>
+                <button type="button" class="btn btn-atacado" onclick="filtrarGrafico('Atacado')">Atacado 🏭</button>
+                <button type="button" class="btn btn-varejo" onclick="filtrarGrafico('Varejo')">Varejo 🏪</button>
+                <button type="button" class="btn btn-entrega" onclick="filtrarGrafico('Entrega')">Entrega 🚚</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="graficoVendas"></canvas>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">Detalhamento das Vendas no Período 📋</div>
+            <table>
+                <thead>
+                    <tr><th>Produtos</th><th>Tipo</th><th>Valor</th><th>Quant.</th><th>Total Item</th><th>Data</th></tr>
+                </thead>
+                <tbody id="tabelaVendasResumo">
+                    <tr><td colspan="6" style="text-align:center; color:#777;">Selecione o período ou aguarde o carregamento</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwDWnOE-94AE9XcPTONLpnmV84Q37-NwOuIeG9dGY3HVsX7ML7z2VQfEgSXebwBOBSE/exec";
+
+    let listaProdutosGlobal = [];
+    let carrinho = [];
+    let tipoAtual = "Varejo";
+    let meuGrafico = null;
+    let dadosVendasGlobal = [];
+
+    function mudarAba(aba) {
+        document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+        document.querySelectorAll('.btn-aba').forEach(b => b.classList.remove('ativo'));
+       
+        if (aba === 'caixa') {
+            document.getElementById('telaCaixa').classList.add('ativa');
+            event.target.classList.add('ativo');
+        } else {
+            document.getElementById('telaVendas').classList.add('ativa');
+            event.target.classList.add('ativo');
+            consultarVendas();
+        }
+    }
+
+    function iniciarDataHora() {
+        const agora = new Date();
+        document.getElementById('dataAtual').value = agora.toLocaleDateString('pt-BR');
+        document.getElementById('horaAtual').value = agora.toLocaleTimeString('pt-BR');
+    }
+    setInterval(iniciarDataHora, 1000);
+    iniciarDataHora();
+
+    async function carregarListaProdutos() {
+        const select = document.getElementById('buscaProduto');
+        select.innerHTML = '<option value="">Carregando...</option>';
+        try {
+            const response = await fetch(WEB_APP_URL + "?Acao=produtos");
+            listaProdutosGlobal = await response.json();
+           
+            select.innerHTML = '<option value="">Selecione o produto...</option>';
+            if (listaProdutosGlobal.length === 0) {
+                select.innerHTML = '<option value="">Nenhum produto encontrado na aba Produtos</option>';
+                return;
+            }
+           
+            listaProdutosGlobal.forEach((p, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.textContent = `${p.codigo} - ${p.descricao}`;
+                select.appendChild(opt);
+            });
+        } catch (e) {
+            console.error(e);
+            select.innerHTML = '<option value="">Erro ao carregar produtos</option>';
+        }
+    }
+
+    function selecionarProduto() {
+        const index = document.getElementById('buscaProduto').value;
+        if (index === "") return;
+        const prod = listaProdutosGlobal[index];
+        document.getElementById('produtoNome').value = prod.descricao;
+        document.getElementById('estoqueAtual').value = prod.quantidade;
+        atualizarValorPorTipo(prod);
+    }
+
+    function setTipoPreco(tipo) {
+        tipoAtual = tipo;
+        document.getElementById('tipoSelecionado').value = tipo;
+        const index = document.getElementById('buscaProduto').value;
+        if (index !== "") atualizarValorPorTipo(listaProdutosGlobal[index]);
+    }
+
+    function atualizarValorPorTipo(prod) {
+        let preco = 0;
+        if (tipoAtual === 'Atacado') preco = parseFloat(prod.precoAtacado) || 0;
+        else if (tipoAtual === 'Varejo') preco = parseFloat(prod.precoVarejo) || 0;
+        else if (tipoAtual === 'Entrega') preco = parseFloat(prod.precoEntrega) || 0;
+        document.getElementById('valorBase').value = preco.toFixed(2);
+        document.getElementById('descontoPerc').value = 0;
+        document.getElementById('valorFinal').value = preco.toFixed(2);
+        calcularTotalItem();
+    }
+
+    function calcularValorFinal() {
+        const base = parseFloat(document.getElementById('valorBase').value) || 0;
+        const desc = parseFloat(document.getElementById('descontoPerc').value) || 0;
+        const final = base - (base * (desc / 100));
+        document.getElementById('valorFinal').value = final.toFixed(2);
+        calcularTotalItem();
+    }
+
+    function calcularTotalItem() {
+        const final = parseFloat(document.getElementById('valorFinal').value) || 0;
+        const qtd = parseInt(document.getElementById('quantidadeItem').value) || 1;
+        document.getElementById('totalItem').value = (final * qtd).toFixed(2);
+    }
+
+    function adicionarAoCarrinho() {
+        const nomeProd = document.getElementById('produtoNome').value;
+        const estoque = parseInt(document.getElementById('estoqueAtual').value) || 0;
+        const qtd = parseInt(document.getElementById('quantidadeItem').value) || 0;
+
+        if (!nomeProd) { alert("Selecione um produto!"); return; }
+        if (qtd > estoque) { alert("Quantidade maior que o estoque!"); return; }
+
+        carrinho.push({
+            produto: nomeProd,
+            tipo: tipoAtual,
+            valor: parseFloat(document.getElementById('valorFinal').value),
+            quantidade: qtd,
+            totalItem: parseFloat(document.getElementById('totalItem').value)
+        });
+        atualizarTabelaCarrinho();
+    }
+
+    function atualizarTabelaCarrinho() {
+        const tbody = document.getElementById('tabelaCarrinho');
+        tbody.innerHTML = "";
+        if (carrinho.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#777;">Nenhum produto adicionado</td></tr>`;
+            document.getElementById('totalCompraExibir').textContent = "R$ 0,00";
+            return;
+        }
+        let totalGeral = 0;
+        carrinho.forEach((item, idx) => {
+            totalGeral += item.totalItem;
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.produto}</td><td>${item.tipo}</td>
+                    <td>R$ ${item.valor.toFixed(2)}</td><td>${item.quantidade}</td>
+                    <td>R$ ${item.totalItem.toFixed(2)}</td>
+                    <td><i class="fa-solid fa-trash-can lixeira" onclick="removerItem(${idx})"></i></td>
+                </tr>`;
+        });
+        document.getElementById('totalCompraExibir').textContent = `R$ ${totalGeral.toFixed(2)}`;
+    }
+
+    function removerItem(idx) { carrinho.splice(idx, 1); atualizarTabelaCarrinho(); }
+    function zerarCarrinho() { carrinho = []; atualizarTabelaCarrinho(); }
+    function limparTela() {
+        zerarCarrinho();
+        document.getElementById('buscaProduto').value = "";
+        document.getElementById('produtoNome').value = "";
+        document.getElementById('estoqueAtual').value = "";
+        document.getElementById('valorBase').value = "";
+        document.getElementById('valorFinal').value = "";
+        document.getElementById('quantidadeItem').value = 1;
+        document.getElementById('totalItem').value = "";
+    }
+
+    async function salvarVenda() {
+        if (carrinho.length === 0) { alert("Carrinho vazio!"); return; }
+        const dadosEnvio = {
+            data: document.getElementById('dataAtual').value,
+            hora: document.getElementById('horaAtual').value,
+            itens: carrinho,
+            totalCompra: carrinho.reduce((acc, i) => acc + i.totalItem, 0)
+        };
+
+        const statusMsg = document.getElementById('statusMsg');
+        statusMsg.textContent = "Salvando venda...";
+        statusMsg.className = "carregando";
+        statusMsg.classList.remove('hidden');
+
+        try {
+            const response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify(dadosEnvio),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
+            const res = await response.json();
+            if (res.status === "sucesso") {
+                statusMsg.textContent = "Salvo com sucesso!";
+                statusMsg.className = "sucesso";
+                limparTela();
+                carregarListaProdutos();
+                setTimeout(() => statusMsg.classList.add('hidden'), 3000);
+            } else { statusMsg.textContent = "Erro: " + res.mensagem; statusMsg.className = "erro"; }
+        } catch (e) { statusMsg.textContent = "Erro de conexão."; statusMsg.className = "erro"; }
+    }
+
+    async function consultarVendas() {
+        try {
+            const response = await fetch(WEB_APP_URL + "?Acao=vendas");
+            dadosVendasGlobal = await response.json();
+            renderizarVendas(dadosVendasGlobal, 'Todos');
+        } catch (e) { console.error("Erro ao buscar vendas:", e); }
+    }
+
+    function renderizarVendas(dados, tipoFiltroGrafico = 'Todos') {
+        const inicio = document.getElementById('dataInicio').value;
+        const fim = document.getElementById('dataFim').value;
+        const tbody = document.getElementById('tabelaVendasResumo');
+        tbody.innerHTML = "";
+
+        let filtrados = dados;
+        if (inicio && fim) {
+            filtrados = dados.filter(v => {
+                const partes = v.data.split('/');
+                if (partes.length === 3) {
+                    const dataIso = `${partes[2]}-${partes[1]}-${partes[0]}`;
+                    return dataIso >= inicio && dataIso <= fim;
+                }
+                return true;
+            });
+        }
+
+        if (filtrados.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#777;">Nenhuma venda encontrada no período</td></tr>`;
+            atualizarGrafico({}, 'Todos');
+            return;
+        }
+
+        let totaisPorMes = {
+            Atacado: Array(12).fill(0),
+            Varejo: Array(12).fill(0),
+            Entrega: Array(12).fill(0)
+        };
+
+        let somaTotalGeralVendas = 0;
+
+        filtrados.forEach(v => {
+            const valorTotalItem = parseFloat(v.totalItem) || 0;
+            somaTotalGeralVendas += valorTotalItem;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${v.produto}</td><td>${v.tipo}</td>
+                    <td>R$ ${parseFloat(v.valorFinal).toFixed(2)}</td><td>${v.quantidade}</td>
+                    <td>R$ ${valorTotalItem.toFixed(2)}</td><td>${v.data}</td>
+                </tr>`;
+           
+            const partesData = v.data.split('/');
+            if (partesData.length === 3) {
+                const mes = parseInt(partesData[1]) - 1;
+                if (!isNaN(mes) && totaisPorMes[v.tipo]) {
+                    totaisPorMes[v.tipo][mes] += valorTotalItem;
+                }
+            }
+        });
+
+        // Adiciona a linha de Total Geral no rodapé da tabela
+        tbody.innerHTML += `
+            <tr style="font-weight: bold; background: #f5f5f5;">
+                <td colspan="4" style="text-align: right;">🖨️ TOTAL GERAL:</td>
+                <td colspan="2" style="text-align: left; color: #c0392b;">R$ ${somaTotalGeralVendas.toFixed(2)}</td>
+            </tr>`;
+
+        atualizarGrafico(totaisPorMes, tipoFiltroGrafico);
+    }
+
+    function filtrarGrafico(tipoEspecifico) {
+        if (!dadosVendasGlobal.length) return;
+       
+        const inicio = document.getElementById('dataInicio').value;
+        const fim = document.getElementById('dataFim').value;
+        let filtrados = dadosVendasGlobal;
+        if (inicio && fim) {
+            filtrados = dadosVendasGlobal.filter(v => {
+                const partes = v.data.split('/');
+                if (partes.length === 3) {
+                    const dataIso = `${partes[2]}-${partes[1]}-${partes[0]}`;
+                    return dataIso >= inicio && dataIso <= fim;
+                }
+                return true;
+            });
+        }
+       
+        let totaisFiltradosDoPeriodo = { Atacado: Array(12).fill(0), Varejo: Array(12).fill(0), Entrega: Array(12).fill(0) };
+        filtrados.forEach(v => {
+            const partesData = v.data.split('/');
+            if (partesData.length === 3) {
+                const mes = parseInt(partesData[1]) - 1;
+                if (!isNaN(mes) && totaisFiltradosDoPeriodo[v.tipo]) {
+                    totaisFiltradosDoPeriodo[v.tipo][mes] += parseFloat(v.totalItem) || 0;
+                }
+            }
+        });
+
+        atualizarGrafico(totaisFiltradosDoPeriodo, tipoEspecifico);
+    }
+
+    function atualizarGrafico(totais, tipoFiltro) {
+        const ctx = document.getElementById('graficoVendas').getContext('2d');
+        if (meuGrafico) meuGrafico.destroy();
+
+        const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+       
+        let datasets = [];
+        if (tipoFiltro === 'Todos' || tipoFiltro === 'Atacado') {
+            datasets.push({ label: 'Atacado', data: totais.Atacado || Array(12).fill(0), backgroundColor: '#d35400' });
+        }
+        if (tipoFiltro === 'Todos' || tipoFiltro === 'Varejo') {
+            datasets.push({ label: 'Varejo', data: totais.Varejo || Array(12).fill(0), backgroundColor: '#2980b9' });
+        }
+        if (tipoFiltro === 'Todos' || tipoFiltro === 'Entrega') {
+            datasets.push({ label: 'Entrega', data: totais.Entrega || Array(12).fill(0), backgroundColor: '#8e44ad' });
+        }
+
+        meuGrafico = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: meses, datasets: datasets },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    window.onload = carregarListaProdutos;
+</script>
+</body>
+</html>
+
+ 
