@@ -90,6 +90,7 @@
 
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .grid-4 { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; }
         .grid-busca { display: grid; grid-template-columns: 3fr 1fr; gap: 10px; align-items: flex-end; }
 
         .input-group {
@@ -131,9 +132,12 @@
         .btn-varejo { background: var(--info); width: 100%; }
         .btn-entrega { background: #8e44ad; width: 100%; }
         .btn-adicionar { background: var(--primary); width: 100%; margin-top: 10px; }
+
+        .acoes-finais { display: flex; gap: 8px; margin-top: 15px; }
         .btn-salvar { background: var(--primary); flex: 1; }
         .btn-limpar { background: #f39c12; flex: 1; }
         .btn-excluir { background: var(--danger); flex: 1; }
+        .btn-pdf { background: #34495e; flex: 1; }
 
         table {
             width: 100%;
@@ -174,9 +178,8 @@
             text-align: right;
         }
 
-        .acoes-finais { display: flex; gap: 10px; margin-top: 15px; }
-        .chart-container { position: relative; height: 280px; width: 100%; background: #fff; padding: 10px; border-radius: 4px; }
-       
+        .chart-container { position: relative; height: 320px; width: 100%; background: #fff; padding: 10px; border-radius: 4px; }
+
         #statusMsg { text-align: center; margin-top: 10px; font-weight: bold; padding: 8px; border-radius: 4px; }
         .sucesso { background: #d4edda; color: #155724; }
         .erro { background: #f8d7da; color: #721c24; }
@@ -191,9 +194,70 @@
         <button class="btn-aba" onclick="mudarAba('vendas')">Vendas 📊</button>
     </div>
 
-    <!-- TELA CAIXA --> 
+    <!-- TELA CAIXA -->
     <div id="telaCaixa" class="tela ativa">
         <h2 class="titulo">💰 Max Artesanatos - Caixa 💰</h2>
+
+        <div class="section-box">
+            <div class="section-title">Dados do Cliente 👤</div>
+   
+            <div class="grid-busca" style="margin-bottom: 10px;">
+                <div class="input-group">
+                    <label>Consultar Cliente:</label>
+                    <select id="buscaCliente" onchange="selecionarClienteECadeiaCompras()">
+                        <option value="">⏳ Carregando clientes...</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-buscar" onclick="carregarListaClientes()">Atualizar 🔍</button>
+            </div>
+
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Nome do Cliente:</label>
+                    <input type="text" id="clienteNome" placeholder="Nome completo">
+                </div>
+                <div class="input-group">
+                    <label>WhatsApp / Telefone:</label>
+                    <input type="text" id="clienteTelefone" placeholder="(00) 00000-0000">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>CEP:</label>
+                    <input type="text" id="clienteCep" placeholder="00000-000" maxlength="9" onblur="consultarCep()">
+                </div>
+                <div class="input-group">
+                    <label>Forma de Pagamento:</label>
+                    <select id="formaPagamento">
+                        <option value="Dinheiro">Dinheiro 💵</option>
+                        <option value="PIX">PIX 📱</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito 💳</option>
+                        <option value="Cartão de Débito">Cartão de Débito 💳</option>
+                        <option value="Fiado / Outros">Fiado / Outros 📝</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid-4">
+                <div class="input-group">
+                    <label>Rua / Logradouro:</label>
+                    <input type="text" id="clienteRua" placeholder="Preenchido via CEP" readonly>
+                </div>
+                <div class="input-group">
+                    <label>Número:</label>
+                    <input type="text" id="clienteNumero" placeholder="Nº">
+                </div>
+                <div class="input-group">
+                    <label>Bairro:</label>
+                    <input type="text" id="clienteBairro" placeholder="Preenchido via CEP" readonly>
+                </div>
+                <div class="input-group">
+                    <label>Cidade:</label>
+                    <input type="text" id="clienteCidade" placeholder="Preenchido via CEP" readonly>
+                </div>
+            </div>
+        </div>
 
         <div class="section-box">
             <div class="section-title">Consultar Produtos 🔍</div>
@@ -210,7 +274,7 @@
 
         <div class="section-box">
             <div class="section-title">Caixa / Registrar Vendas 💰</div>
-            <div class="grid-2"> 
+            <div class="grid-2">
                 <div class="input-group"><label>Data:</label><input type="text" id="dataAtual" readonly></div>
                 <div class="input-group"><label>Hora:</label><input type="text" id="horaAtual" readonly></div>
             </div>
@@ -235,11 +299,11 @@
 
             <div class="grid-2">
                 <div class="input-group"><label>Quantidade:</label><input type="number" id="quantidadeItem" value="1" min="1" oninput="calcularTotalItem()"></div>
-                <div class="input-group"><label>Total Item (R$):</label><input type="number" id="totalItem" readonly step="0.01"></div>
+                <div class="input-group"><label>🖨️ Total Item (R$):</label><input type="number" id="totalItem" readonly step="0.01"></div>
             </div>
 
             <button type="button" class="btn btn-adicionar" onclick="adicionarAoCarrinho()">Adicionar Produto 🛒</button>
-        </div> 
+        </div>
 
         <div class="section-box">
             <table>
@@ -258,6 +322,7 @@
             <div class="acoes-finais">
                 <button type="button" class="btn btn-salvar" onclick="salvarVenda()">Salvar 💾</button>
                 <button type="button" class="btn btn-limpar" onclick="limparTela()">Limpar 🧹</button>
+                <button type="button" class="btn btn-pdf" onclick="gerarPdfComprovante()">Gerar PDF 📄</button>
                 <button type="button" class="btn btn-excluir" onclick="zerarCarrinho()">Excluir 🗑️</button>
             </div>
             <div id="statusMsg" class="hidden"></div>
@@ -270,7 +335,7 @@
 
         <div class="section-box">
             <div class="section-title">Consultar Vendas por Período 📆</div>
-            <div class="grid-2"> 
+            <div class="grid-2">
                 <div class="input-group"><label>📆 Período Início:</label><input type="date" id="dataInicio" onchange="consultarVendas()"></div>
                 <div class="input-group"><label>📆 Período Final:</label><input type="date" id="dataFim" onchange="consultarVendas()"></div>
             </div>
@@ -279,12 +344,12 @@
         <div class="section-box">
             <div class="section-title">Gráfico de Desempenho 📊</div>
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px;">
-                <button type="button" class="btn" style="background: #27ae60;" onclick="filtrarGrafico('Todos')">Todos ✨</button>
-                <button type="button" class="btn btn-atacado" onclick="filtrarGrafico('Atacado')">Atacado 🏭</button>
-                <button type="button" class="btn btn-varejo" onclick="filtrarGrafico('Varejo')">Varejo 🏪</button>
-                <button type="button" class="btn btn-entrega" onclick="filtrarGrafico('Entrega')">Entrega 🚚</button>
+                <button type="button" class="btn" style="background: #27ae60;" onclick="filtrarTabelaEGrafico('Todos')">Todos ✨</button>
+                <button type="button" class="btn btn-atacado" onclick="filtrarTabelaEGrafico('Atacado')">Atacado 🏭</button>
+                <button type="button" class="btn btn-varejo" onclick="filtrarTabelaEGrafico('Varejo')">Varejo 🏪</button>
+                <button type="button" class="btn btn-entrega" onclick="filtrarTabelaEGrafico('Entrega')">Entrega 🚚</button>
             </div>
-            <div class="chart-container">
+            <div class="chart-container" style="position: relative; height: 350px; width: 100%;">
                 <canvas id="graficoVendas"></canvas>
             </div>
         </div>
@@ -293,10 +358,10 @@
             <div class="section-title">Detalhamento das Vendas no Período 📋</div>
             <table>
                 <thead>
-                    <tr><th>Produtos</th><th>Tipo</th><th>Valor</th><th>Quant.</th><th>Total Item</th><th>Data</th></tr>
+                    <tr><th>Cliente</th><th>Telefone</th><th>Pagamento</th><th>Produtos</th><th>Tipo</th><th>Valor</th><th>Quant.</th><th>Total Item</th><th>Data</th></tr>
                 </thead>
                 <tbody id="tabelaVendasResumo">
-                    <tr><td colspan="6" style="text-align:center; color:#777;">Selecione o período ou aguarde o carregamento</td></tr>
+                    <tr><td colspan="9" style="text-align:center; color:#777;">Selecione o período ou aguarde o carregamento</td></tr>
                 </tbody>
             </table>
         </div>
@@ -304,18 +369,20 @@
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwDWnOE-94AE9XcPTONLpnmV84Q37-NwOuIeG9dGY3HVsX7ML7z2VQfEgSXebwBOBSE/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyv7CUKl_bkDngnnflJOQGgivDGX878diel4XG4f0j0ugEI4H61Xw8IZhm0uilDkX2X/exec";
 
     let listaProdutosGlobal = [];
+    let listaClientesGlobal = [];
     let carrinho = [];
     let tipoAtual = "Varejo";
     let meuGrafico = null;
     let dadosVendasGlobal = [];
+    let filtroAtualGraficoTabela = 'Todos';
 
     function mudarAba(aba) {
         document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
         document.querySelectorAll('.btn-aba').forEach(b => b.classList.remove('ativo'));
-       
+
         if (aba === 'caixa') {
             document.getElementById('telaCaixa').classList.add('ativa');
             event.target.classList.add('ativo');
@@ -334,27 +401,160 @@
     setInterval(iniciarDataHora, 1000);
     iniciarDataHora();
 
+    function obterObjetoDataEMes(dataStr) {
+        if (!dataStr) return null;
+        dataStr = String(dataStr).trim();
+        let dia, mes, ano;
+
+        if (dataStr.includes('/')) {
+            const p = dataStr.split('/');
+            if (p.length === 3) {
+                dia = parseInt(p[0], 10);
+                mes = parseInt(p[1], 10) - 1;
+                ano = parseInt(p[2], 10);
+            }
+        } else if (dataStr.includes('-')) {
+            const p = dataStr.split('-');
+            if (p.length === 3) {
+                if (p[0].length === 4) { // Formato YYYY-MM-DD
+                    ano = parseInt(p[0], 10);
+                    mes = parseInt(p[1], 10) - 1;
+                    dia = parseInt(p[2], 10);
+                } else { // Formato DD-MM-YYYY
+                    dia = parseInt(p[0], 10);
+                    mes = parseInt(p[1], 10) - 1;
+                    ano = parseInt(p[2], 10);
+                }
+            }
+        }
+
+        if (!isNaN(mes) && mes >= 0 && mes < 12 && !isNaN(ano) && !isNaN(dia)) {
+            return {
+                mesIndex: mes,
+                dateObj: new Date(ano, mes, dia)
+            };
+        }
+        return null;
+    }
+
+    async function carregarListaClientes() {
+        const select = document.getElementById('buscaCliente');
+        select.innerHTML = '<option value="">Carregando clientes...</option>';
+        try {
+            const response = await fetch(WEB_APP_URL + "?Acao=clientes");
+            if (!response.ok) throw new Error("Erro de rede");
+            listaClientesGlobal = await response.json();
+
+            select.innerHTML = '<option value="">Selecione um cliente cadastrado...</option>';
+            if (!Array.isArray(listaClientesGlobal) || listaClientesGlobal.length === 0) {
+                select.innerHTML = '<option value="">Nenhum cliente encontrado</option>';
+                return;
+            }
+
+            listaClientesGlobal.forEach((c, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.textContent = c.nome || 'Cliente sem nome';
+                select.appendChild(opt);
+            });
+        } catch (e) {
+            console.error("Erro ao carregar clientes:", e);
+            select.innerHTML = '<option value="">Erro ao carregar clientes</option>';
+        }
+    }
+
+    async function selecionarClienteECadeiaCompras() {
+        const index = document.getElementById('buscaCliente').value;
+        if (index === "") return;
+        const cli = listaClientesGlobal[index];
+        if (!cli) return;
+
+        document.getElementById('clienteNome').value = cli.nome || '';
+        document.getElementById('clienteTelefone').value = cli.telefone || '';
+        document.getElementById('clienteCep').value = cli.cep || '';
+        document.getElementById('clienteRua').value = cli.rua || '';
+        document.getElementById('clienteNumero').value = cli.numero || '';
+        document.getElementById('clienteBairro').value = cli.bairro || '';
+        document.getElementById('clienteCidade').value = cli.cidade || '';
+
+        try {
+            const response = await fetch(WEB_APP_URL + "?Acao=vendas");
+            if (!response.ok) return;
+            const vendas = await response.json();
+         
+            if (Array.isArray(vendas) && vendas.length > 0) {
+                const nomeCliBusca = (cli.nome || "").trim().toLowerCase();
+                const comprasCliente = vendas.filter(v => (v.clienteNome || "").trim().toLowerCase() === nomeCliBusca);
+
+                if (comprasCliente.length > 0) {
+                    carrinho = [];
+                    comprasCliente.forEach(v => {
+                        const nomeProd = v.produto || v.descricao || v.nomeProduto || 'Produto';
+                        const valUnit = parseFloat(v.valorFinal || v.valor || 0);
+                        const qtdItem = parseInt(v.quantidade || 1);
+                        const totItem = parseFloat(v.totalItem || (valUnit * qtdItem));
+
+                        carrinho.push({
+                            produto: nomeProd,
+                            tipo: v.tipo || 'Varejo',
+                            valor: valUnit,
+                            quantidade: qtdItem,
+                            totalItem: totItem
+                        });
+
+                        if (v.formaPagamento) {
+                            document.getElementById('formaPagamento').value = v.formaPagamento;
+                        }
+                    });
+                    atualizarTabelaCarrinho();
+                }
+            }
+        } catch (e) {
+            console.error("Erro ao buscar histórico de compras do cliente:", e);
+        }
+    }
+
+    async function consultarCep() {
+        let cep = document.getElementById('clienteCep').value.replace(/\D/g, '');
+        if (cep.length !== 8) return;
+        try {
+            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+            const dados = await response.json();
+            if (!dados.erro) {
+                document.getElementById('clienteRua').value = dados.logradouro || '';
+                document.getElementById('clienteBairro').value = dados.bairro || '';
+                document.getElementById('clienteCidade').value = dados.localidade || '';
+                document.getElementById('clienteNumero').focus();
+            } else {
+                alert("CEP não encontrado.");
+            }
+        } catch (e) {
+            console.error("Erro ao consultar CEP:", e);
+        }
+    }
+
     async function carregarListaProdutos() {
         const select = document.getElementById('buscaProduto');
         select.innerHTML = '<option value="">Carregando...</option>';
         try {
             const response = await fetch(WEB_APP_URL + "?Acao=produtos");
+            if (!response.ok) throw new Error("Erro de rede");
             listaProdutosGlobal = await response.json();
-           
+
             select.innerHTML = '<option value="">Selecione o produto...</option>';
-            if (listaProdutosGlobal.length === 0) {
-                select.innerHTML = '<option value="">Nenhum produto encontrado na aba Produtos</option>';
+            if (!Array.isArray(listaProdutosGlobal) || listaProdutosGlobal.length === 0) {
+                select.innerHTML = '<option value="">Nenhum produto encontrado</option>';
                 return;
             }
-           
+
             listaProdutosGlobal.forEach((p, index) => {
                 const opt = document.createElement('option');
                 opt.value = index;
-                opt.textContent = `${p.codigo} - ${p.descricao}`;
+                opt.textContent = `${p.codigo || ''} - ${p.descricao || 'Produto'}`;
                 select.appendChild(opt);
             });
         } catch (e) {
-            console.error(e);
+            console.error("Erro ao carregar produtos:", e);
             select.innerHTML = '<option value="">Erro ao carregar produtos</option>';
         }
     }
@@ -363,8 +563,9 @@
         const index = document.getElementById('buscaProduto').value;
         if (index === "") return;
         const prod = listaProdutosGlobal[index];
-        document.getElementById('produtoNome').value = prod.descricao;
-        document.getElementById('estoqueAtual').value = prod.quantidade;
+        if (!prod) return;
+        document.getElementById('produtoNome').value = prod.descricao || '';
+        document.getElementById('estoqueAtual').value = prod.quantidade || 0;
         atualizarValorPorTipo(prod);
     }
 
@@ -372,7 +573,9 @@
         tipoAtual = tipo;
         document.getElementById('tipoSelecionado').value = tipo;
         const index = document.getElementById('buscaProduto').value;
-        if (index !== "") atualizarValorPorTipo(listaProdutosGlobal[index]);
+        if (index !== "" && listaProdutosGlobal[index]) {
+            atualizarValorPorTipo(listaProdutosGlobal[index]);
+        }
     }
 
     function atualizarValorPorTipo(prod) {
@@ -444,6 +647,14 @@
     function zerarCarrinho() { carrinho = []; atualizarTabelaCarrinho(); }
     function limparTela() {
         zerarCarrinho();
+        document.getElementById('clienteNome').value = "";
+        document.getElementById('clienteTelefone').value = "";
+        document.getElementById('clienteCep').value = "";
+        document.getElementById('clienteRua').value = "";
+        document.getElementById('clienteNumero').value = "";
+        document.getElementById('clienteBairro').value = "";
+        document.getElementById('clienteCidade').value = "";
+        document.getElementById('buscaCliente').value = "";
         document.getElementById('buscaProduto').value = "";
         document.getElementById('produtoNome').value = "";
         document.getElementById('estoqueAtual').value = "";
@@ -453,9 +664,60 @@
         document.getElementById('totalItem').value = "";
     }
 
+    function gerarPdfComprovante() {
+        if (carrinho.length === 0) { alert("Adicione itens ao carrinho para gerar o PDF da nota!"); return; }
+        const cliente = document.getElementById('clienteNome').value || "Cliente Balcão";
+        const telefone = document.getElementById('clienteTelefone').value;
+        const pagamento = document.getElementById('formaPagamento').value;
+        const cep = document.getElementById('clienteCep').value;
+        const rua = document.getElementById('clienteRua').value;
+        const numero = document.getElementById('clienteNumero').value;
+        const bairro = document.getElementById('clienteBairro').value;
+        const cidade = document.getElementById('clienteCidade').value;
+        const data = document.getElementById('dataAtual').value;
+        const hora = document.getElementById('horaAtual').value;
+
+        let itensHtml = "";
+        let totalGeral = 0;
+        carrinho.forEach(item => {
+            totalGeral += item.totalItem;
+            itensHtml += `<tr><td style="border:1px solid #ddd; padding:8px;">${item.produto}</td><td style="border:1px solid #ddd; padding:8px; text-align:center;">${item.tipo}</td><td style="border:1px solid #ddd; padding:8px; text-align:center;">${item.quantidade}</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">R$ ${item.valor.toFixed(2)}</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">R$ ${item.totalItem.toFixed(2)}</td></tr>`;
+        });
+
+        const janela = window.open('', '_blank');
+        janela.document.write(`
+            <html><head><title>Comprovante - Max Artesanatos</title></head>
+            <body style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                <h2 style="text-align: center; color: #5c3a21;">Max Artesanatos - Comprovante de Venda</h2>
+                <hr>
+                <p><b>Data/Hora:</b> ${data} às ${hora}</p>
+                <p><b>Cliente:</b> ${cliente} | <b>Tel/WhatsApp:</b> ${telefone}</p>
+                <p><b>Forma de Pagamento:</b> ${pagamento}</p>
+                <p><b>Endereço:</b> ${rua}, ${numero} - ${bairro} - ${cidade} (CEP: ${cep})</p>
+                <br>
+                <table style="width:100%; border-collapse: collapse;">
+                    <thead><tr style="background: #5c3a21; color: white;"><th style="padding:8px;">Produto</th><th style="padding:8px;">Tipo</th><th style="padding:8px;">Qtd</th><th style="padding:8px;">Valor Unit.</th><th style="padding:8px;">Total Item</th></tr></thead>
+                    <tbody>${itensHtml}</tbody>
+                </table>
+                <h3 style="text-align: right; margin-top: 20px; color: #c0392b;">Total da Compra: R$ ${totalGeral.toFixed(2)}</h3>
+                <script>window.print();<\/script>
+            </body></html>
+        `);
+        janela.document.close();
+    }
+
     async function salvarVenda() {
         if (carrinho.length === 0) { alert("Carrinho vazio!"); return; }
+
         const dadosEnvio = {
+            clienteNome: document.getElementById('clienteNome').value || "Cliente Balcão",
+            clienteTelefone: document.getElementById('clienteTelefone').value || "",
+            formaPagamento: document.getElementById('formaPagamento').value || "Dinheiro",
+            clienteCep: document.getElementById('clienteCep').value || "",
+            clienteRua: document.getElementById('clienteRua').value || "",
+            clienteNumero: document.getElementById('clienteNumero').value || "",
+            clienteBairro: document.getElementById('clienteBairro').value || "",
+            clienteCidade: document.getElementById('clienteCidade').value || "",
             data: document.getElementById('dataAtual').value,
             hora: document.getElementById('horaAtual').value,
             itens: carrinho,
@@ -479,6 +741,7 @@
                 statusMsg.className = "sucesso";
                 limparTela();
                 carregarListaProdutos();
+                carregarListaClientes();
                 setTimeout(() => statusMsg.classList.add('hidden'), 3000);
             } else { statusMsg.textContent = "Erro: " + res.mensagem; statusMsg.className = "erro"; }
         } catch (e) { statusMsg.textContent = "Erro de conexão."; statusMsg.className = "erro"; }
@@ -487,34 +750,44 @@
     async function consultarVendas() {
         try {
             const response = await fetch(WEB_APP_URL + "?Acao=vendas");
+            if (!response.ok) return;
             dadosVendasGlobal = await response.json();
-            renderizarVendas(dadosVendasGlobal, 'Todos');
+            filtrarTabelaEGrafico(filtroAtualGraficoTabela);
         } catch (e) { console.error("Erro ao buscar vendas:", e); }
     }
 
-    function renderizarVendas(dados, tipoFiltroGrafico = 'Todos') {
-        const inicio = document.getElementById('dataInicio').value;
-        const fim = document.getElementById('dataFim').value;
-        const tbody = document.getElementById('tabelaVendasResumo');
-        tbody.innerHTML = "";
+    function filtrarTabelaEGrafico(tipoEspecifico = 'Todos') {
+        filtroAtualGraficoTabela = tipoEspecifico;
+        const dataInicio = document.getElementById('dataInicio').value;
+        const dataFim = document.getElementById('dataFim').value;
 
-        let filtrados = dados;
-        if (inicio && fim) {
-            filtrados = dados.filter(v => {
-                const partes = v.data.split('/');
-                if (partes.length === 3) {
-                    const dataIso = `${partes[2]}-${partes[1]}-${partes[0]}`;
-                    return dataIso >= inicio && dataIso <= fim;
-                }
-                return true;
+        let filtrados = dadosVendasGlobal;
+
+        if (dataInicio && dataFim) {
+            const [anoIni, mesIni, diaIni] = dataInicio.split('-').map(Number);
+            const [anoFim, mesFim, diaFim] = dataFim.split('-').map(Number);
+            const dIni = new Date(anoIni, mesIni - 1, diaIni);
+            const dFim = new Date(anoFim, mesFim - 1, diaFim);
+
+            filtrados = dadosVendasGlobal.filter(v => {
+                if (!v.data) return false;
+                const infoData = obterObjetoDataEMes(v.data);
+                if (!infoData) return false;
+                return infoData.dateObj >= dIni && infoData.dateObj <= dFim;
             });
         }
 
-        if (filtrados.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#777;">Nenhuma venda encontrada no período</td></tr>`;
-            atualizarGrafico({}, 'Todos');
-            return;
+        let filtradosPorTipo = filtrados;
+        if (tipoEspecifico !== 'Todos') {
+            filtradosPorTipo = filtrados.filter(v => {
+                let t = (v.tipo || 'Varejo').trim();
+                t = t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+                return t === tipoEspecifico;
+            });
         }
+
+        const tbody = document.getElementById('tabelaVendasResumo');
+        tbody.innerHTML = "";
 
         let totaisPorMes = {
             Atacado: Array(12).fill(0),
@@ -522,67 +795,53 @@
             Entrega: Array(12).fill(0)
         };
 
+        if (filtradosPorTipo.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">Nenhuma venda encontrada no período/filtro</td></tr>`;
+            atualizarGrafico(totaisPorMes, tipoEspecifico);
+            return;
+        }
+
         let somaTotalGeralVendas = 0;
 
-        filtrados.forEach(v => {
+        filtradosPorTipo.forEach(v => {
             const valorTotalItem = parseFloat(v.totalItem) || 0;
             somaTotalGeralVendas += valorTotalItem;
 
+            const nomeProdutoExibir = v.produto || v.descricao || v.nomeProduto || 'Produto não especificado';
+         
             tbody.innerHTML += `
                 <tr>
-                    <td>${v.produto}</td><td>${v.tipo}</td>
-                    <td>R$ ${parseFloat(v.valorFinal).toFixed(2)}</td><td>${v.quantidade}</td>
-                    <td>R$ ${valorTotalItem.toFixed(2)}</td><td>${v.data}</td>
-                </tr>`;
-           
-            const partesData = v.data.split('/');
-            if (partesData.length === 3) {
-                const mes = parseInt(partesData[1]) - 1;
-                if (!isNaN(mes) && totaisPorMes[v.tipo]) {
-                    totaisPorMes[v.tipo][mes] += valorTotalItem;
+                    <td>${v.clienteNome || 'Cliente Balcão'}</td>
+                    <td>${v.clienteTelefone || '-'}</td>
+                    <td>${v.formaPagamento || '-'}</td>
+                    <td>${nomeProdutoExibir}</td>
+                    <td>${v.tipo || 'Varejo'}</td>
+                    <td>R$ ${parseFloat(v.valorFinal || v.valor || 0).toFixed(2)}</td>
+                    <td>${v.quantidade || 1}</td>
+                    <td>R$ ${valorTotalItem.toFixed(2)}</td>
+                    <td>${v.data || '-'}</td>
+                </tr>
+            `;
+
+            const infoData = obterObjetoDataEMes(v.data);
+            if (infoData) {
+                let tipoVenda = (v.tipo || 'Varejo').trim();
+                tipoVenda = tipoVenda.charAt(0).toUpperCase() + tipoVenda.slice(1).toLowerCase();
+
+                if (totaisPorMes[tipoVenda]) {
+                    totaisPorMes[tipoVenda][infoData.mesIndex] += valorTotalItem;
                 }
             }
         });
 
-        // Adiciona a linha de Total Geral no rodapé da tabela
         tbody.innerHTML += `
-            <tr style="font-weight: bold; background: #f5f5f5;">
-                <td colspan="4" style="text-align: right;">🖨️ TOTAL GERAL:</td>
-                <td colspan="2" style="text-align: left; color: #c0392b;">R$ ${somaTotalGeralVendas.toFixed(2)}</td>
-            </tr>`;
+            <tr>
+                <td colspan="7" style="text-align:right; font-weight:bold;">🖨️ TOTAL GERAL (${tipoEspecifico}):</td>
+                <td colspan="2" style="font-weight:bold;">R$ ${somaTotalGeralVendas.toFixed(2)}</td>
+            </tr>
+        `;
 
-        atualizarGrafico(totaisPorMes, tipoFiltroGrafico);
-    }
-
-    function filtrarGrafico(tipoEspecifico) {
-        if (!dadosVendasGlobal.length) return;
-       
-        const inicio = document.getElementById('dataInicio').value;
-        const fim = document.getElementById('dataFim').value;
-        let filtrados = dadosVendasGlobal;
-        if (inicio && fim) {
-            filtrados = dadosVendasGlobal.filter(v => {
-                const partes = v.data.split('/');
-                if (partes.length === 3) {
-                    const dataIso = `${partes[2]}-${partes[1]}-${partes[0]}`;
-                    return dataIso >= inicio && dataIso <= fim;
-                }
-                return true;
-            });
-        }
-       
-        let totaisFiltradosDoPeriodo = { Atacado: Array(12).fill(0), Varejo: Array(12).fill(0), Entrega: Array(12).fill(0) };
-        filtrados.forEach(v => {
-            const partesData = v.data.split('/');
-            if (partesData.length === 3) {
-                const mes = parseInt(partesData[1]) - 1;
-                if (!isNaN(mes) && totaisFiltradosDoPeriodo[v.tipo]) {
-                    totaisFiltradosDoPeriodo[v.tipo][mes] += parseFloat(v.totalItem) || 0;
-                }
-            }
-        });
-
-        atualizarGrafico(totaisFiltradosDoPeriodo, tipoEspecifico);
+        atualizarGrafico(totaisPorMes, tipoEspecifico);
     }
 
     function atualizarGrafico(totais, tipoFiltro) {
@@ -590,8 +849,8 @@
         if (meuGrafico) meuGrafico.destroy();
 
         const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-       
         let datasets = [];
+
         if (tipoFiltro === 'Todos' || tipoFiltro === 'Atacado') {
             datasets.push({ label: 'Atacado', data: totais.Atacado || Array(12).fill(0), backgroundColor: '#d35400' });
         }
@@ -604,14 +863,50 @@
 
         meuGrafico = new Chart(ctx, {
             type: 'bar',
-            data: { labels: meses, datasets: datasets },
-            options: { responsive: true, maintainAspectRatio: false }
+            data: {
+                labels: meses,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) label += ': ';
+                                if (context.parsed.y !== null) {
+                                    label += 'R$ ' + context.parsed.y.toFixed(2);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
         });
     }
 
-    window.onload = carregarListaProdutos;
+    window.onload = function() {
+        carregarListaClientes();
+        carregarListaProdutos();
+    };
 </script>
 </body>
 </html>
+
+ 
+
 
  
